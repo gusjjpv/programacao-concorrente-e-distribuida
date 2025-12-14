@@ -1,110 +1,121 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <mpi.h>
 
-int main(void) {
-   int n;
-   int i;
-   int escalar;
-   int *vetor1 = NULL, *vetor2 = NULL;
-   int *local_vetor1, *local_vetor2;
-   int local_soma = 0, resultado = 0;
-   int comm_sz, my_rank;
+int main(int argc, char* argv[]) {
+    int my_rank, comm_sz;
+    int n;
+    double alpha;
 
-   MPI_Init(NULL, NULL);
-   MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
-   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+    double *v1 = NULL, *v2 = NULL;
+    double *local_v1, *local_v2;
+    double local_sum = 0.0, global_sum = 0.0;
 
-   int *sendcounts = malloc(comm_sz * sizeof(int));
-   int *displs = malloc(comm_sz * sizeof(int));
+    int *sendcounts = NULL;
+    int *displs = NULL;
+    int local_n;
 
-   if (my_rank == 0) {
-      printf("Entre com o tamanho dos vetores:\n");
-      scanf("%d", &n);
+    MPI_Init(&argc, &argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
 
-      printf("Entre com o escalar:\n");
-      scanf("%d", &escalar);
+    /* Processo 0 lê entrada */
+    if (my_rank == 0) {
+        printf("Digite o tamanho dos vetores (n): ");
+        fflush(stdout);
+        scanf("%d", &n);
 
-      // calcula distribuição como na questão da regra trapezoidal
-      int base = n / comm_sz;
-      int resto = n % comm_sz;
+        printf("Digite o escalar: ");
+        fflush(stdout);
+        scanf("%lf", &alpha);
 
-      int offset = 0;
-      for (i = 0; i < comm_sz; i++) {
-         sendcounts[i] = (i < resto) ? base + 1 : base;
-         displs[i] = offset;
-         offset += sendcounts[i];
-      }
-   }
+        v1 = malloc(n * sizeof(double));
+        v2 = malloc(n * sizeof(double));
 
-   // Broadcast de n e escalar
-   MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
-   MPI_Bcast(&escalar, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        printf("Digite os elementos do vetor 1:\n");
+        for (int i = 0; i < n; i++){
+            fflush(stdout);
+            scanf("%lf", &v1[i]);
+            }
 
-   // Broadcast de sendcounts e displs
-   MPI_Bcast(sendcounts, comm_sz, MPI_INT, 0, MPI_COMM_WORLD);
-   MPI_Bcast(displs, comm_sz, MPI_INT, 0, MPI_COMM_WORLD);
+        printf("Digite os elementos do vetor 2:\n");
+        for (int i = 0; i < n; i++){
+            fflush(stdout);
+            scanf("%lf", &v2[i]);
+        }
 
-   int local_n = sendcounts[my_rank];
+        /* Alocar e preencher sendcounts e displs */
+        sendcounts = malloc(comm_sz * sizeof(int));
+        displs = malloc(comm_sz * sizeof(int));
 
-   local_vetor1 = malloc(local_n * sizeof(int));
-   local_vetor2 = malloc(local_n * sizeof(int));
+        int div = n / comm_sz;
+        int resto = n % comm_sz;
 
-   if (my_rank == 0) {
-      vetor1 = malloc(n * sizeof(int));
-      vetor2 = malloc(n * sizeof(int));
+        int offset = 0;
+        for (int i = 0; i < comm_sz; i++) {
+            sendcounts[i] = div + (i < resto ? 1 : 0);
+            displs[i] = offset;
+            offset += sendcounts[i];
+        }
+    }
 
-      printf("Digite o primeiro vetor:\n");
-      for (i = 0; i < n; i++)
-         scanf("%d", &vetor1[i]);
+    /* Broadcast de n e alpha */
+    MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&alpha, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-      printf("Digite o segundo vetor:\n");
-      for (i = 0; i < n; i++)
-         scanf("%d", &vetor2[i]);
-   }
+    /* Cada processo descobre seu local_n */
+    int div = n / comm_sz;
+    int resto = n % comm_sz;
+    local_n = div + (my_rank < resto ? 1 : 0);
 
-   // SCATTERV corrigido
-   MPI_Scatterv(vetor1, sendcounts, displs, MPI_INT,
-                local_vetor1, local_n, MPI_INT, 0, MPI_COMM_WORLD);
+    /* Alocar vetores locais */
+    local_v1 = malloc(local_n * sizeof(double));
+    local_v2 = malloc(local_n * sizeof(double));
 
-   MPI_Scatterv(vetor2, sendcounts, displs, MPI_INT,
-                local_vetor2, local_n, MPI_INT, 0, MPI_COMM_WORLD);
+    /* Distribuir vetores com Scatterv */
+    MPI_Scatterv(v1, sendcounts, displs, MPI_DOUBLE,
+                 local_v1, local_n, MPI_DOUBLE,
+                 0, MPI_COMM_WORLD);
 
-   // Cálculo local
-   for (i = 0; i < local_n; i++) {
-      local_vetor1[i] *= escalar;
-      local_soma += local_vetor2[i] * local_vetor2[i];
-      printf("Processo %d -> vetor1[%d] apos multiplicar: %d\n",
-             my_rank, i, local_vetor1[i]);
-   }
+    MPI_Scatterv(v2, sendcounts, displs, MPI_DOUBLE,
+                 local_v2, local_n, MPI_DOUBLE,
+                 0, MPI_COMM_WORLD);
 
-   MPI_Reduce(&local_soma, &resultado, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+    /* Multiplicar vetor 1 pelo escalar */
+    for (int i = 0; i < local_n; i++)
+        local_v1[i] *= alpha;
 
-   int *vetor1_final = NULL;
-   if (my_rank == 0) vetor1_final = malloc(n * sizeof(int));
+    /* Soma parcial da norma do vetor 2 */
+    for (int i = 0; i < local_n; i++)
+        local_sum += local_v2[i] * local_v2[i];
 
-   // GATHERV corrigido
-   MPI_Gatherv(local_vetor1, local_n, MPI_INT,
-               vetor1_final, sendcounts, displs, MPI_INT,
-               0, MPI_COMM_WORLD);
+    MPI_Reduce(&local_sum, &global_sum, 1, MPI_DOUBLE,
+               MPI_SUM, 0, MPI_COMM_WORLD);
 
-   if (my_rank == 0) {
-      printf("Norma do vetor2 (sem raiz): %d\n", resultado);
-      printf("Vetor1 multiplicado pelo escalar:\n");
-      for (i = 0; i < n; i++)
-         printf("%d ", vetor1_final[i]);
-      printf("\n");
+    /* Coletar vetor 1 modificado */
+    MPI_Gatherv(local_v1, local_n, MPI_DOUBLE,
+                v1, sendcounts, displs, MPI_DOUBLE,
+                0, MPI_COMM_WORLD);
 
-      free(vetor1_final);
-      free(vetor1);
-      free(vetor2);
-   }
+    /* Processo 0 imprime */
+    if (my_rank == 0) {
+        printf("\nVetor 1 após multiplicação pelo escalar:\n");
+        for (int i = 0; i < n; i++)
+            printf("%.2f ", v1[i]);
+        printf("\n");
 
-   free(local_vetor1);
-   free(local_vetor2);
-   free(sendcounts);
-   free(displs);
+        printf("\nNorma do vetor 2: %.6f\n", sqrt(global_sum));
 
-   MPI_Finalize();
-   return 0;
+        free(v1);
+        free(v2);
+        free(sendcounts);
+        free(displs);
+    }
+
+    free(local_v1);
+    free(local_v2);
+
+    MPI_Finalize();
+    return 0;
 }

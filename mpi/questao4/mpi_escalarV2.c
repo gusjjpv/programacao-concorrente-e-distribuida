@@ -1,94 +1,98 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <mpi.h>
 
-int main(void) {
-   int n;
-   int local_n; //Tamanho do vetor dividido
-   int i; //variavel auxiliar
-   int escalar; //Escalar
-   int* vetor1 = NULL; //Primeiro vetor
-   int* vetor2 = NULL; //Segundo vetor
-   int* local_vetor1; //Parte do vetor 1 em um processo
-   int* local_vetor2; //Parte do vetor 2 em um processo
-   int local_soma = 0; // Soma local
-   int resultado = 0; //Resultado final
-   int        comm_sz;               /* Numero de processos    */
-   int        my_rank;               /* Rank do meu processo       */
+int main(int argc, char* argv[]) {
+    int my_rank, comm_sz;
+    int n, local_n;
+    double alpha;
 
-   MPI_Init(NULL, NULL); 
+    double *v1 = NULL, *v2 = NULL;
+    double *local_v1, *local_v2;
+    double local_sum = 0.0, global_sum = 0.0;
 
-   MPI_Comm_size(MPI_COMM_WORLD, &comm_sz); 
+    MPI_Init(&argc, &argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
 
-   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank); 
+    /* Processo 0 lê entrada */
+    if (my_rank == 0) {
+        printf("Digite o tamanho dos vetores (n): ");
+        fflush(stdout);
+        scanf("%d", &n);
 
-   if (my_rank == 0) {
-      printf("Entre com o tamanho dos vetores\n");
-      scanf("%d", &n);
-      printf("Entre com o escalar\n");
-      scanf("%d", &escalar);
-      local_n = n/comm_sz;
-   }
+        printf("Digite o escalar: ");
+        fflush(stdout);
+        scanf("%lf", &alpha);
 
-    MPI_Bcast(&local_n, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        v1 = malloc(n * sizeof(double));
+        v2 = malloc(n * sizeof(double));
+
+        printf("Digite os elementos do vetor 1:\n");
+        for (int i = 0; i < n; i++){
+            fflush(stdout);
+            scanf("%lf", &v1[i]);
+            }
+
+        printf("Digite os elementos do vetor 2:\n");
+        for (int i = 0; i < n; i++){
+            fflush(stdout);
+            scanf("%lf", &v2[i]);
+        }
+    }
+
+    /* Distribuir n e alpha */
     MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&escalar, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&alpha, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-   vetor1 = (int*)malloc(n*sizeof(int));
-   vetor2 = (int*)malloc(n*sizeof(int));
-   local_vetor1 = (int*)malloc(local_n*sizeof(int));
-   local_vetor2 = (int*)malloc(local_n*sizeof(int));
+    local_n = n / comm_sz;
 
-   if(my_rank == 0){
-      printf("Digite o primeiro vetor\n");
-	for(i=0;i<n;i++)
-	 scanf("%d",&vetor1[i]);
-      printf("Digite o segundo vetor\n");
-	for(i=0;i<n;i++)
-	 scanf("%d",&vetor2[i]);
-      MPI_Scatter(vetor1, local_n, MPI_INT, 
-            local_vetor1, local_n, MPI_INT, 0, MPI_COMM_WORLD);
-      MPI_Scatter(vetor2, local_n, MPI_INT, 
-            local_vetor2, local_n, MPI_INT, 0, MPI_COMM_WORLD);
-      free(vetor1);
-      free(vetor2);
-   }else{
-      MPI_Scatter(vetor1, local_n, MPI_INT, 
-            local_vetor1, local_n, MPI_INT, 0, MPI_COMM_WORLD);
-      MPI_Scatter(vetor2, local_n, MPI_INT, 
-            local_vetor2, local_n, MPI_INT, 0, MPI_COMM_WORLD);
-   }
+    /* Alocar vetores locais */
+    local_v1 = malloc(local_n * sizeof(double));
+    local_v2 = malloc(local_n * sizeof(double));
 
-   for(i=0;i<local_n;i++){
-      local_vetor1[i] *= escalar;           // vetor1 * escalar
-        local_soma += local_vetor2[i] * local_vetor2[i];
-   }
+    /* Distribuir vetores */
+    MPI_Scatter(v1, local_n, MPI_DOUBLE,
+                local_v1, local_n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-   printf("Processo %d -> vetor1[%d] após multiplicar: %d\n", my_rank, i, local_vetor1[i]);
+    MPI_Scatter(v2, local_n, MPI_DOUBLE,
+                local_v2, local_n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-   MPI_Reduce(&local_soma, &resultado, 1, MPI_INT, MPI_SUM, 0,
-         MPI_COMM_WORLD);
+    /* Multiplicar vetor 1 pelo escalar */
+    for (int i = 0; i < local_n; i++)
+        local_v1[i] *= alpha;
 
-    int* vetor1_final = NULL;
-    if (my_rank == 0)
-    vetor1_final = (int*)malloc(n*sizeof(int));
+    /* Calcular soma parcial dos quadrados do vetor 2 */
+    for (int i = 0; i < local_n; i++)
+        local_sum += local_v2[i] * local_v2[i];
 
-    MPI_Gather(local_vetor1, local_n, MPI_INT, vetor1_final, local_n, MPI_INT, 0, MPI_COMM_WORLD);
+    /* Redução para calcular norma */
+    MPI_Reduce(&local_sum, &global_sum, 1, MPI_DOUBLE,
+               MPI_SUM, 0, MPI_COMM_WORLD);
 
+    /* Coletar vetor 1 modificado */
+    MPI_Gather(local_v1, local_n, MPI_DOUBLE,
+               v1, local_n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-   if(my_rank == 0){
-    printf("Norma do vetor2 (sem raiz): %d\n", resultado);
-    printf("Vetor1 multiplicado pelo escalar:\n");
-    for (i = 0; i < n; i++)
-        printf("%d ", vetor1_final[i]);
-    printf("\n");
+    /* Processo 0 imprime resultados */
+    if (my_rank == 0) {
+        printf("\nVetor 1 após multiplicação pelo escalar:\n");
+        for (int i = 0; i < n; i++)
+            printf("%.2f ", v1[i]);
+        printf("\n");
 
-    free(vetor1_final);
-    free(local_vetor1);
-    free(local_vetor2);
-   }
+        printf("\nNorma do vetor 2: %.6f\n", sqrt(global_sum));
+    }
 
-   MPI_Finalize(); 
+    /* Liberar memória */
+    free(local_v1);
+    free(local_v2);
+    if (my_rank == 0) {
+        free(v1);
+        free(v2);
+    }
 
-   return 0;
+    MPI_Finalize();
+    return 0;
 }

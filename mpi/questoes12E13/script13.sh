@@ -2,10 +2,10 @@
 #SBATCH --nodes=4
 #SBATCH --ntasks-per-node=24
 #SBATCH -p sequana_cpu_dev
-#SBATCH -J mpi_trap_scaling
+#SBATCH -J mpi_odd_even_scaling
 #SBATCH --exclusive
-#SBATCH --time=00:10:00
-#SBATCH --output=resultado_questao12_%j.log
+#SBATCH --time=00:15:00
+#SBATCH --output=resultado_questao13_%j.log
 
 echo "Job ID: $SLURM_JOB_ID"
 echo "Nodes allocated: $SLURM_JOB_NODELIST"
@@ -16,16 +16,10 @@ cd /scratch/pex1272-ufersa/joao.lima2/questoes12E13/ || exit 1
 module load gcc/14.2.0_sequana
 module load openmpi/gnu/4.1.4_sequana
 
-# Compila (opcional, mas seguro)
-mpicc -O2 -Wall -o mpi_trap_time mpi_trap_time.c
+# Compila
+mpicc -O2 -Wall -o mpi_odd_even_time mpi_odd_even_time.c
 
-# Entrada padrão do programa
-A=0.0
-B=1.0
-N=100000000
-
-echo "Parâmetros: a=$A b=$B n=$N"
-echo ""
+GLOBAL_N=96000000   # divisível por 1,2,4,8,16,24,48,96
 
 #######################################
 # 1 NÓ — dobrando processos
@@ -35,7 +29,7 @@ for NP in 1 2 4 8 16 24
 do
     echo ""
     echo ">>> Executando com $NP processo(s) em 1 nó"
-    echo "$A $B $N" | mpirun -np $NP ./mpi_trap_time
+    mpirun -np $NP ./mpi_odd_even_time g $GLOBAL_N
 done
 
 #######################################
@@ -43,14 +37,14 @@ done
 #######################################
 echo ""
 echo "===== 2 NODES (48 processes) ====="
-echo "$A $B $N" | mpirun -np 48 ./mpi_trap_time
+mpirun -np 48 ./mpi_odd_even_time g $GLOBAL_N
 
 #######################################
 # 4 NÓS COMPLETOS
 #######################################
 echo ""
 echo "===== 4 NODES (96 processes) ====="
-echo "$A $B $N" | mpirun -np 96 ./mpi_trap_time
+mpirun -np 96 ./mpi_odd_even_time g $GLOBAL_N
 
 echo ""
 echo "FIM DO JOB"
