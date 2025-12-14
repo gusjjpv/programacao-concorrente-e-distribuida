@@ -1,0 +1,273 @@
+Job ID: 11433419
+Nodes allocated: sdumont[6165-6168]
+======================================
+
+The following have been reloaded with a version change:
+  1) gcc/14.2.0_sequana => gcc/9.3_sequana
+
+
+######################################
+### Experimentos com n = 10000000000
+######################################
+
+===== 1 NODE SCALING =====
+
+>>> n=10000000000 | p=1
+Enter a, b, and n
+Última execução, integral = 3.333333333333410e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 1.091774e+01 s
+Tempo médio  : 1.092010e+01 s
+Tempo mediano: 1.092045e+01 s
+========================================
+
+>>> n=10000000000 | p=2
+Enter a, b, and n
+Última execução, integral = 3.333333333333341e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 5.580636e+00 s
+Tempo médio  : 5.596875e+00 s
+Tempo mediano: 5.598130e+00 s
+========================================
+
+>>> n=10000000000 | p=4
+Enter a, b, and n
+Última execução, integral = 3.333333333333207e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 2.773103e+00 s
+Tempo médio  : 2.786304e+00 s
+Tempo mediano: 2.787424e+00 s
+========================================
+
+>>> n=10000000000 | p=8
+Enter a, b, and n
+Última execução, integral = 3.333333333333313e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 1.455275e+00 s
+Tempo médio  : 1.464071e+00 s
+Tempo mediano: 1.459073e+00 s
+========================================
+
+>>> n=10000000000 | p=16
+Enter a, b, and n
+Última execução, integral = 3.333333333333313e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 7.390884e-01 s
+Tempo médio  : 7.393394e-01 s
+Tempo mediano: 7.392565e-01 s
+========================================
+
+>>> n=10000000000 | p=24
+Enter a, b, and n
+Última execução, integral = 3.333333317333314e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 5.097271e-01 s
+Tempo médio  : 5.278278e-01 s
+Tempo mediano: 5.113775e-01 s
+========================================
+
+===== 2 NODES (48 processes) =====
+>>> n=10000000000 | p=48
+Enter a, b, and n
+Última execução, integral = 3.333333317333329e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 2.552688e-01 s
+Tempo médio  : 2.569660e-01 s
+Tempo mediano: 2.568541e-01 s
+========================================
+
+===== 4 NODES (96 processes) =====
+>>> n=10000000000 | p=96
+Enter a, b, and n
+Última execução, integral = 3.333333269333334e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 1.292920e-01 s
+Tempo médio  : 1.316132e-01 s
+Tempo mediano: 1.299893e-01 s
+========================================
+
+######################################
+### Experimentos com n = 20000000000
+######################################
+
+===== 1 NODE SCALING =====
+
+>>> n=20000000000 | p=1
+Enter a, b, and n
+Última execução, integral = 3.333333333333311e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 2.183271e+01 s
+Tempo médio  : 2.184224e+01 s
+Tempo mediano: 2.184259e+01 s
+========================================
+
+>>> n=20000000000 | p=2
+Enter a, b, and n
+Última execução, integral = 3.333333333333569e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 1.116939e+01 s
+Tempo médio  : 1.118459e+01 s
+Tempo mediano: 1.118161e+01 s
+========================================
+
+>>> n=20000000000 | p=4
+Enter a, b, and n
+Última execução, integral = 3.333333333333298e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 5.580637e+00 s
+Tempo médio  : 5.592737e+00 s
+Tempo mediano: 5.595422e+00 s
+========================================
+
+>>> n=20000000000 | p=8
+Enter a, b, and n
+Última execução, integral = 3.333333333333527e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 2.908997e+00 s
+Tempo médio  : 2.917301e+00 s
+Tempo mediano: 2.915544e+00 s
+========================================
+
+>>> n=20000000000 | p=16
+Enter a, b, and n
+Última execução, integral = 3.333333333333359e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 1.478466e+00 s
+Tempo médio  : 1.478864e+00 s
+Tempo mediano: 1.478526e+00 s
+========================================
+
+>>> n=20000000000 | p=24
+Enter a, b, and n
+Última execução, integral = 3.333333329333320e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 1.010873e+00 s
+Tempo médio  : 1.018937e+00 s
+Tempo mediano: 1.017477e+00 s
+========================================
+
+===== 2 NODES (48 processes) =====
+>>> n=20000000000 | p=48
+Enter a, b, and n
+Última execução, integral = 3.333333317333301e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 5.114616e-01 s
+Tempo médio  : 5.147947e-01 s
+Tempo mediano: 5.138750e-01 s
+========================================
+
+===== 4 NODES (96 processes) =====
+>>> n=20000000000 | p=96
+Enter a, b, and n
+Última execução, integral = 3.333333317333316e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 2.578035e-01 s
+Tempo médio  : 2.633316e-01 s
+Tempo mediano: 2.592275e-01 s
+========================================
+
+######################################
+### Experimentos com n = 40000000000
+######################################
+
+===== 1 NODE SCALING =====
+
+>>> n=40000000000 | p=1
+Enter a, b, and n
+Última execução, integral = 3.333333333335470e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 4.377838e+01 s
+Tempo médio  : 4.379025e+01 s
+Tempo mediano: 4.379044e+01 s
+========================================
+
+>>> n=40000000000 | p=2
+Enter a, b, and n
+Última execução, integral = 3.333333333335523e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 2.235830e+01 s
+Tempo médio  : 2.240213e+01 s
+Tempo mediano: 2.239775e+01 s
+========================================
+
+>>> n=40000000000 | p=4
+Enter a, b, and n
+Última execução, integral = 3.333333333333524e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 1.113916e+01 s
+Tempo médio  : 1.116639e+01 s
+Tempo mediano: 1.116875e+01 s
+========================================
+
+>>> n=40000000000 | p=8
+Enter a, b, and n
+Última execução, integral = 3.333333333333395e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 5.827165e+00 s
+Tempo médio  : 5.835356e+00 s
+Tempo mediano: 5.833984e+00 s
+========================================
+
+>>> n=40000000000 | p=16
+Enter a, b, and n
+Última execução, integral = 3.333333333333470e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 2.956110e+00 s
+Tempo médio  : 2.956417e+00 s
+Tempo mediano: 2.956272e+00 s
+========================================
+
+>>> n=40000000000 | p=24
+Enter a, b, and n
+Última execução, integral = 3.333333329333314e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 2.027914e+00 s
+Tempo médio  : 2.039378e+00 s
+Tempo mediano: 2.038350e+00 s
+========================================
+
+===== 2 NODES (48 processes) =====
+>>> n=40000000000 | p=48
+Enter a, b, and n
+Última execução, integral = 3.333333329333323e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 1.019582e+00 s
+Tempo médio  : 1.024062e+00 s
+Tempo mediano: 1.024584e+00 s
+========================================
+
+===== 4 NODES (96 processes) =====
+>>> n=40000000000 | p=96
+Enter a, b, and n
+Última execução, integral = 3.333333317333333e-01 (não é análise de tempo)
+
+=== Medições de tempo (5 execuções) ===
+Tempo mínimo : 5.118675e-01 s
+Tempo médio  : 5.194526e-01 s
+Tempo mediano: 5.192484e-01 s
+========================================
+
+FIM DO JOB
