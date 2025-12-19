@@ -6,7 +6,7 @@
 int main(int argc, char* argv[]) {
     int my_rank, comm_sz;
     int n;
-    double alpha;
+    double escalar;
 
     double *v1 = NULL, *v2 = NULL;
     double *local_v1, *local_v2;
@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
 
         printf("Digite o escalar: ");
         fflush(stdout);
-        scanf("%lf", &alpha);
+        scanf("%lf", &escalar);
 
         v1 = malloc(n * sizeof(double));
         v2 = malloc(n * sizeof(double));
@@ -60,9 +60,9 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    /* Broadcast de n e alpha */
+    /* Broadcast de n e escalar */
     MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&alpha, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&escalar, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
     /* Cada processo descobre seu local_n */
     int div = n / comm_sz;
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
 
     /* Multiplicar vetor 1 pelo escalar */
     for (int i = 0; i < local_n; i++)
-        local_v1[i] *= alpha;
+        local_v1[i] *= escalar;
 
     /* Soma parcial da norma do vetor 2 */
     for (int i = 0; i < local_n; i++)
